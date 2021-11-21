@@ -5,12 +5,20 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    [Header("Player Detection")]
+    public LOS enemyLOS;
+
     [Header("Movement")]
     public float runForce;
     public Transform lookAheadPoint;
     public Transform lookInFrontPoint;
     public LayerMask groundLayerMask;
     public LayerMask wallLayerMask;
+
+    [Header("Animator")]
+    public Animator animatorControler;
+
+    private Rigidbody2D rigibody;
 
 
     public bool isGroundAhead;
@@ -20,6 +28,8 @@ public class EnemyController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        enemyLOS = GetComponent<LOS>();
+        animatorControler = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -27,7 +37,32 @@ public class EnemyController : MonoBehaviour
     {
         LookAhead();
         LookInFrontPoint();
-        MoveEnemy();
+
+        if (!HasLOS())
+        {
+            animatorControler.enabled = true;
+            animatorControler.Play("Run");
+            MoveEnemy();
+        }
+
+        else 
+        {
+            animatorControler.enabled = false;
+        }
+    }
+
+
+    private bool HasLOS()
+    {
+        if(enemyLOS.colliderList.Count > 0)
+        {
+            if((enemyLOS.collidesWith.gameObject.CompareTag("Player")) &&
+                (enemyLOS.colliderList[0].gameObject.CompareTag("Player")))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void LookInFrontPoint()

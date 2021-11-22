@@ -7,6 +7,7 @@ public class EnemyController : MonoBehaviour
 {
     [Header("Player Detection")]
     public LOS enemyLOS;
+     
 
     [Header("Movement")]
     public float runForce;
@@ -54,12 +55,32 @@ public class EnemyController : MonoBehaviour
 
     private bool HasLOS()
     {
-        if(enemyLOS.colliderList.Count > 0)
+        string playerTag = "Player";
+
+        if (enemyLOS.colliderList.Count > 0)
         {
+            // case 1 enemy polygoncollider collides with player & is at the top of the list
             if((enemyLOS.collidesWith.gameObject.CompareTag("Player")) &&
                 (enemyLOS.colliderList[0].gameObject.CompareTag("Player")))
             {
                 return true;
+            }
+            else 
+            {
+                //case 2 player is in the collider list and we can draw ray to the player
+                foreach (var collider in enemyLOS.colliderList)
+                {
+
+                    if(collider.CompareTag("Player"))
+                    {
+                        RaycastHit2D hit = (Physics2D.Linecast(transform.position, collider.transform.position , enemyLOS.contactFilter.layerMask));
+                        if(hit && hit.collider.gameObject.CompareTag(playerTag))
+                        {
+                            return true;
+                        }
+                       
+                    }
+                }
             }
         }
         return false;
